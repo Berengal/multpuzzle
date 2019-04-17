@@ -1,13 +1,9 @@
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
