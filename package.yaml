@@ -25,6 +25,10 @@ dependencies:
 - containers >= 0.6.0.1 && < 0.7
 - MonadRandom >= 0.5.1.1
 - random-shuffle >= 0.0.4
+- mtl >= 2.2.2 && < 2.3
+# - microlens >= 0.4.10 && < 0.5
+- microlens-platform >= 0.3.11 && < 0.4
+- vty >= 5.25.1 && < 6
 
 library:
   source-dirs: src
