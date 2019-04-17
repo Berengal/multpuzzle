@@ -1,5 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Games.MultPuzzle
   -- | Two random numbers, one three digits and one two digits long, are multiplied
@@ -17,6 +18,7 @@ module Games.MultPuzzle
   , newPuzzle
   , newPuzzleIO
   , isSolved
+  , cheatSolve
   , guess
   , isValidGuess
   , letterNeedsGuessing
@@ -75,10 +77,10 @@ newPuzzleIO :: IO Puzzle
 newPuzzleIO = R.evalRandIO newPuzzle
 
 -- | Creates a new random puzzle
-newPuzzle :: (R.MonadRandom m, R.MonadInterleave m) => m Puzzle
+newPuzzle :: (R.MonadRandom m) => m Puzzle
 newPuzzle = do
-  firstDigits <- take 3 <$> R.interleave (R.getRandomRs ('0', '9'))
-  secondDigits <- take 2 <$> R.interleave (R.getRandomRs ('0', '9'))
+  firstDigits <- show @Int <$> R.getRandomR (100,999)
+  secondDigits <- show @Int <$> R.getRandomR (10,99)
   letters <- R.shuffleM (Set.toList validLetters)
   let [x,y] = secondDigits
   
@@ -100,6 +102,12 @@ newPuzzle = do
 -- | A puzzle is solved when there are no unknown digits
 isSolved :: Puzzle -> Bool
 isSolved Puzzle{..} = Set.null unknownDigits
+
+cheatSolve :: Puzzle -> Puzzle
+cheatSolve Puzzle{..} = Puzzle { knownDigits = validDigits
+                               , unknownDigits = Set.empty
+                               , ..
+                               }
 
 -- | If the guess is correct, returns the updates puzzle where the digit is
 -- known to have been correctly guessed. Returns Nothing if the guess is wrong
