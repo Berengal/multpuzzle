@@ -83,8 +83,7 @@ newPuzzle = do
   secondDigits <- show @Int <$> R.getRandomR (10,99)
   letters <- R.shuffleM (Set.toList validLetters)
   let [x,y] = secondDigits
-  
-  let firstN = read firstDigits
+      firstN = read firstDigits
       firstMult = show $ firstN * read [y]
       secondMult = show $ firstN * read [x]
       finalDigits = show (firstN * read secondDigits)
@@ -129,9 +128,7 @@ guess puzzle (l, d) = do
 -- has to be a valid digit
 isValidGuess :: Puzzle -> (Char, Char) -- ^ (letter, digit) guessing letter = digit
              -> Bool
-isValidGuess p@Puzzle{..} (l, d)
-  = letterNeedsGuessing p l &&
-    not (elem d validDigits && not (elem d knownDigits))
+isValidGuess p (l, d) = letterNeedsGuessing p l && digitNeedsGuessing p d
 
 -- | A digit needs guessing if it's a valid digit (element of `validDigits`) and
 -- the digit is not already known

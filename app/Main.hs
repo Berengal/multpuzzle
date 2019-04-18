@@ -35,12 +35,6 @@ data GameState = GameState { _puzzle :: P.Puzzle
                            }
 
 makeLenses ''GameState
-
-
-ui :: Widget ()
-ui = withBorderStyle unicode $
-     borderWithLabel (str "Hello") $
-     (center (str "Left") <+> vBorder <+> center (str "Right"))
      
 main :: IO _
 main = do
@@ -68,7 +62,7 @@ textAttributes = [(attrName "text" <> attrName "good", fgColor green)
 handleEvent :: GameState -> BrickEvent n e -> EventM n (Next GameState)
 handleEvent s (MouseDown _ _ _ _) = continue s
 handleEvent s (MouseUp _ _ _) = continue s
-handleEvent s (AppEvent _) = error "TODO Handle custom events when they're added" -- TODO
+handleEvent s (AppEvent _) = error "TODO Handle custom events if they're added" -- TODO
 handleEvent s (VtyEvent (EvKey (isQuitKey -> True) _modifiers)) = halt s
 handleEvent s (VtyEvent (EvKey KEnd _modifiers)) = continue (over puzzle P.cheatSolve s)
 handleEvent s (VtyEvent (EvKey (KChar c) _modifiers))
@@ -105,11 +99,10 @@ isQuitKey :: Key -> Bool
 isQuitKey k = elem k [KEsc, KChar 'q']
 
 appView app = 
-              hCenter ((padTop (Pad 1) . padLeft (Pad 3) . hLimit 15) (puzzleView (app ^. puzzle))
-                 <+> (vLimit 4 . padTop (Pad 3) . padLeft (Pad 3)) (renderGuesses (app ^. guesses))
-                )
-              <=> hCenter (renderPrompt (app ^.chosenLetter))
-              <=> hCenter (str (app ^.message))
+  hCenter ((padTop (Pad 1) . padLeft (Pad 3) . hLimit 15) (puzzleView (app ^. puzzle))
+            <+> (vLimit 4 . padTop (Pad 3) . padLeft (Pad 3)) (renderGuesses (app ^. guesses)))
+  <=> (hCenter . renderPrompt) (app ^.chosenLetter)
+  <=> (hCenter . str) (app ^.message)
               
   where renderPrompt Nothing = str " "
         renderPrompt (Just c) = str (toUpper c: " = ")
