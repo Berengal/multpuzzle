@@ -65,34 +65,36 @@ handleEvent s (MouseUp _ _ _) = continue s
 handleEvent s (AppEvent _) = error "TODO Handle custom events if they're added" -- TODO
 handleEvent s (VtyEvent (EvKey (isQuitKey -> True) _modifiers)) = halt s
 handleEvent s (VtyEvent (EvKey KEnd _modifiers)) = continue (over puzzle P.cheatSolve s)
-handleEvent s (VtyEvent (EvKey (KChar c) _modifiers))
-  | P.isSolved p = continue s
+handleEvent s (VtyEvent (EvKey (KChar (toUpper -> c)) _modifiers))
+  | P.isSolved p = halt s
   
-  | not hasLetter && P.letterNeedsGuessing p (toUpper c)
+  | not hasLetter && P.letterNeedsGuessing p c
   = continue (s & chosenLetter .~ Just c
                & message .~ "")
     
-  | not hasLetter && not (P.letterNeedsGuessing p (toUpper c))
-  = continue (s & message.~ "Not an unknown letter: " ++ (show c))
+  | not hasLetter && not (P.letterNeedsGuessing p c)
+  = continue (s & message.~ "Not an unknown letter: " ++ [c])
   
   | hasLetter && not (P.digitNeedsGuessing p c)
   = continue (s & chosenLetter .~ Nothing
-               & message .~ "Not an unknown digit: " ++ (show c))
+               & message .~ "Not an unknown digit: " ++ [c])
     
   | hasLetter && P.digitNeedsGuessing p c
-  = case P.guess p (toUpper (fromJust cl), c) of
+  = case P.guess p (cl, c) of
       Nothing -> continue (s & guesses +~ 1
-                            & message .~ "You guessed wrong: " ++ show (fromJust cl, c)
+                            & message .~ "You guessed wrong: " ++ show (cl, c)
                             & chosenLetter .~ Nothing)
-      Just p' -> let msg = if P.isSolved p' then "You won!" else "You guessed correct!"
+      Just p' -> let msg = if P.isSolved p'
+                           then "You won!"
+                           else "You guessed correct!"
                  in continue (s & puzzle .~ p'
                                 & message .~ msg
                                 & chosenLetter .~ Nothing)
                     
   | otherwise = continue s
   where p = s^.puzzle
-        cl = s^.chosenLetter
-        hasLetter = isJust cl
+        cl = fromJust (s^.chosenLetter)
+        hasLetter = isJust (s^.chosenLetter)
 handleEvent s (VtyEvent _) = continue s
 
 isQuitKey :: Key -> Bool
@@ -105,7 +107,7 @@ appView app =
   <=> (hCenter . str) (app ^.message)
               
   where renderPrompt Nothing = str " "
-        renderPrompt (Just c) = str (toUpper c: " = ")
+        renderPrompt (Just c) = str (c: " = ")
         renderGuesses n = str "Guesses: " <+> withAttr guessAttr (str (show n))
           where guessAttr | n < 2 = attrName "text" <> attrName "good"
                           | n < 4 = attrName "text" <> attrName "meh"

@@ -162,10 +162,11 @@ toPuzzleStrings Puzzle{..} = (m 3 firstDigits
                              ,m 4 secondMult
                              ,m 5 finalDigits
                              )
-  where m n ds =
-          let s = replicate (n - l) '0' ++ ds
+  where m padTo ds =
+          let s = replicate (padTo - l) '0' ++ ds
               l = length ds
-          in map (\d -> Map.findWithDefault d d (Map.withoutKeys digitMap knownDigits)) s
+          in [Map.findWithDefault d d (Map.withoutKeys digitMap knownDigits)
+             | d <- s]
 
 -- TODO Remove
 testPuzzle = do
